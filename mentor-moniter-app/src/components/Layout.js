@@ -1,13 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+
 import Dashboard from "./Dashboard";
+import Protected from "./Protected";
 
 const Layout = () => {
   return (
     <div>
-      <Dashboard/>
-
-   
+      <Protected>
+        <Dashboard />
+      </Protected>
     </div>
   );
 };

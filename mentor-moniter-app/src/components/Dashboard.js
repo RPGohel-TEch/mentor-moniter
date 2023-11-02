@@ -1,22 +1,76 @@
 import React from "react";
 import profileImage from "../images/profile-dash.png";
+import Attendance from "./Attendance";
+import Blackboard from "./Blackboard";
+import Database from "./Database";
+import Material from "./Material";
+import Setting from "./Setting";
+import Analysis from "./Analysis";
 import $ from "jquery";
 const Dashboard = () => {
-  function getTheme() {
-    // console.log("get theme function is going to run")
-    if ($("#changeTheme").prop("checked")) {
-      $(".light-theme").addClass("dark-theme");
-      $(".dark-theme").removeClass("light-theme");
-    } else {
-      $(".dark-theme").addClass("light-theme");
-      $(".light-theme").removeClass("dark-theme");
-    }
+  const userRecentNavigation = localStorage.getItem("NavActive");
+  const user = localStorage.getItem("user");
+  const userRole = JSON.parse(user).role;
+  // console.log("I am user::: "+userRole)
+
+  switch (userRecentNavigation) {
+    case "analysis":
+      console.log("i am no analysis");
+      break;
+    case "db":
+      console.log("i am on db");
+      $("#v-pills-db-tab").addClass("active");
+      $("#v-pills-analysis-tab").removeClass("active");
+      break;
+    case "blackboard":
+      console.log("i am on blackboard");
+      $("#v-pills-blackboard-tab").addClass("active");
+      $("#v-pills-analysis-tab").removeClass("active");
+      break;
+    case "material":
+      console.log("i am no material");
+      $("#v-pills-material-tab").addClass("active");
+      $("#v-pills-analysis-tab").removeClass("active");
+      break;
+    case "attendance":
+      console.log("i am no attendance");
+      $("#v-pills-analysis-tab").removeClass("active");
+      $("#v-pills-attendance-tab").addClass("active");
+      break;
+    case "setting":
+      console.log("i am no setting");
+      $("#v-pills-analysis-tab").removeClass("active");
+      $("#v-pills-setting-tab").addClass("active");
+      break;
   }
+
+  const navigateSave = () => {
+    if ($("#v-pills-analysis-tab").hasClass("active")) {
+      localStorage.setItem("NavActive", "analysis");
+    }
+    if ($("#v-pills-db-tab").hasClass("active")) {
+      localStorage.setItem("NavActive", "db");
+    }
+    if ($("#v-pills-blackboard-tab").hasClass("active")) {
+      localStorage.setItem("NavActive", "blackboard");
+    }
+    if ($("#v-pills-material-tab").hasClass("active")) {
+      localStorage.setItem("NavActive", "material");
+    }
+    if ($("#v-pills-attendance-tab").hasClass("active")) {
+      localStorage.setItem("NavActive", "attendance");
+    }
+    if ($("#v-pills-setting-tab").hasClass("active")) {
+      localStorage.setItem("NavActive", "setting");
+    }
+  };
+  // navigateSave()
+
   return (
     <div className="dashboard-body light-theme">
       <div className="dashboard-header d-flex justify-content-between">
         <a href="" className="logo-dashboard light-theme">
-          Mentor Monitor
+          Mentor's Monitor
         </a>
         <div className="profile-dropdown">
           <div className="dropdown">
@@ -28,11 +82,21 @@ const Dashboard = () => {
               aria-expanded="false"
             >
               <img src={profileImage} alt="" />
+              <div className="usernameInfo">
+                {JSON.parse(user).name}
+                <div className="userRoleInfo">{JSON.parse(user).role}</div>
+              </div>
             </a>
 
             <ul className="dropdown-menu profile-dropdown-menu">
               <li>
-                <a className="dropdown-item" href="#">
+                <a
+                  className="dropdown-item"
+                  href=""
+                  onClick={() => {
+                    localStorage.removeItem("user");
+                  }}
+                >
                   Logout
                 </a>
               </li>
@@ -42,7 +106,11 @@ const Dashboard = () => {
       </div>
 
       <div className="dashboard-content mt-4 d-flex">
-        <div className="dashboard-left-navigation light-theme">
+        <div
+          className="dashboard-left-navigation light-theme"
+          id="leftNavigation"
+          onClick={navigateSave}
+        >
           <div
             className="nav flex-column nav-pills "
             id="v-pills-tab"
@@ -82,58 +150,70 @@ const Dashboard = () => {
                 </svg>
               </div>
             </button>
-            {/* db button */}
-            <button
-              className="nav-link  tab-button light-theme"
-              id="v-pills-db-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#v-pills-db"
-              type="button"
-              role="tab"
-              aria-controls="v-pills-db"
-              aria-selected="true"
-            >
-              <div className="navigation-btn">
-                <svg
-                  width="19"
-                  height="24"
-                  viewBox="0 0 19 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+
+            {userRole == "admin" ? (
+              <>
+                {/* db button */}
+                <button
+                  className="nav-link  tab-button light-theme"
+                  id="v-pills-db-tab"
+                  data-bs-toggle="pill"
+                  data-bs-target="#v-pills-db"
+                  type="button"
+                  role="tab"
+                  aria-controls="v-pills-db"
+                  aria-selected="true"
                 >
-                  <path
-                    d="M19 3.75V6C19 8.07187 14.7462 9.75 9.5 9.75C4.25379 9.75 0 8.07187 0 6V3.75C0 1.67812 4.25379 0 9.5 0C14.7462 0 19 1.67812 19 3.75ZM16.6759 10.0641C17.558 9.71719 18.3681 9.27188 19 8.72344V13.5C19 15.5719 14.7462 17.25 9.5 17.25C4.25379 17.25 0 15.5719 0 13.5V8.72344C0.63192 9.27656 1.44196 9.71719 2.32411 10.0641C4.22835 10.8141 6.76451 11.25 9.5 11.25C12.2355 11.25 14.7717 10.8141 16.6759 10.0641ZM0 16.2234C0.63192 16.7766 1.44196 17.2172 2.32411 17.5641C4.22835 18.3141 6.76451 18.75 9.5 18.75C12.2355 18.75 14.7717 18.3141 16.6759 17.5641C17.558 17.2172 18.3681 16.7719 19 16.2234V20.25C19 22.3219 14.7462 24 9.5 24C4.25379 24 0 22.3219 0 20.25V16.2234Z"
-                    fill="#005173"
-                  />
-                </svg>
-              </div>
-            </button>
+                  <div className="navigation-btn">
+                    <svg
+                      width="19"
+                      height="24"
+                      viewBox="0 0 19 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M19 3.75V6C19 8.07187 14.7462 9.75 9.5 9.75C4.25379 9.75 0 8.07187 0 6V3.75C0 1.67812 4.25379 0 9.5 0C14.7462 0 19 1.67812 19 3.75ZM16.6759 10.0641C17.558 9.71719 18.3681 9.27188 19 8.72344V13.5C19 15.5719 14.7462 17.25 9.5 17.25C4.25379 17.25 0 15.5719 0 13.5V8.72344C0.63192 9.27656 1.44196 9.71719 2.32411 10.0641C4.22835 10.8141 6.76451 11.25 9.5 11.25C12.2355 11.25 14.7717 10.8141 16.6759 10.0641ZM0 16.2234C0.63192 16.7766 1.44196 17.2172 2.32411 17.5641C4.22835 18.3141 6.76451 18.75 9.5 18.75C12.2355 18.75 14.7717 18.3141 16.6759 17.5641C17.558 17.2172 18.3681 16.7719 19 16.2234V20.25C19 22.3219 14.7462 24 9.5 24C4.25379 24 0 22.3219 0 20.25V16.2234Z"
+                        fill="#005173"
+                      />
+                    </svg>
+                  </div>
+                </button>
+              </>
+            ) : (
+              ""
+            )}
+
             {/* blackboard button */}
-            <button
-              className="nav-link  tab-button light-theme"
-              id="v-pills-blackboard-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#v-pills-blackboard"
-              type="button"
-              role="tab"
-              aria-controls="v-pills-blackboard"
-              aria-selected="true"
-            >
-              <div className="navigation-btn">
-                <svg
-                  width="31"
-                  height="26"
-                  viewBox="0 0 31 26"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M7.75 3.17045C7.75 1.42175 9.14016 0 10.85 0H27.9C29.6098 0 31 1.42175 31 3.17045V17.4375C31 19.1862 29.6098 20.608 27.9 20.608H16.3137C15.7422 19.3447 14.8655 18.2549 13.7756 17.4375H18.6V15.8523C18.6 14.9754 19.2927 14.267 20.15 14.267H23.25C24.1073 14.267 24.8 14.9754 24.8 15.8523V17.4375H27.9V3.17045H10.85V5.60279C9.93937 5.06282 8.87859 4.75568 7.75 4.75568V3.17045ZM7.75 15.8523C5.18281 15.8523 3.1 13.7221 3.1 11.0966C3.1 8.47106 5.18281 6.34091 7.75 6.34091C10.3172 6.34091 12.4 8.47106 12.4 11.0966C12.4 13.7221 10.3172 15.8523 7.75 15.8523ZM6.45672 17.4375H9.03844C12.6083 17.4375 15.5 20.3949 15.5 24.041C15.5 24.7692 14.9236 25.3636 14.2067 25.3636H1.29328C0.576406 25.3636 0 24.7741 0 24.041C0 20.3949 2.89172 17.4375 6.45672 17.4375Z"
-                    fill="#005173"
-                  />
-                </svg>
-              </div>
-            </button>
+            {userRole == "admin" || userRole == "faculty" ? (
+              <button
+                className="nav-link  tab-button light-theme"
+                id="v-pills-blackboard-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#v-pills-blackboard"
+                type="button"
+                role="tab"
+                aria-controls="v-pills-blackboard"
+                aria-selected="true"
+              >
+                <div className="navigation-btn">
+                  <svg
+                    width="31"
+                    height="26"
+                    viewBox="0 0 31 26"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7.75 3.17045C7.75 1.42175 9.14016 0 10.85 0H27.9C29.6098 0 31 1.42175 31 3.17045V17.4375C31 19.1862 29.6098 20.608 27.9 20.608H16.3137C15.7422 19.3447 14.8655 18.2549 13.7756 17.4375H18.6V15.8523C18.6 14.9754 19.2927 14.267 20.15 14.267H23.25C24.1073 14.267 24.8 14.9754 24.8 15.8523V17.4375H27.9V3.17045H10.85V5.60279C9.93937 5.06282 8.87859 4.75568 7.75 4.75568V3.17045ZM7.75 15.8523C5.18281 15.8523 3.1 13.7221 3.1 11.0966C3.1 8.47106 5.18281 6.34091 7.75 6.34091C10.3172 6.34091 12.4 8.47106 12.4 11.0966C12.4 13.7221 10.3172 15.8523 7.75 15.8523ZM6.45672 17.4375H9.03844C12.6083 17.4375 15.5 20.3949 15.5 24.041C15.5 24.7692 14.9236 25.3636 14.2067 25.3636H1.29328C0.576406 25.3636 0 24.7741 0 24.041C0 20.3949 2.89172 17.4375 6.45672 17.4375Z"
+                      fill="#005173"
+                    />
+                  </svg>
+                </div>
+              </button>
+            ) : (
+              ""
+            )}
             {/* material button */}
             <button
               className="nav-link  tab-button light-theme"
@@ -161,45 +241,49 @@ const Dashboard = () => {
               </div>
             </button>
             {/* attendance button */}
-            <button
-              className="nav-link  tab-button light-theme"
-              id="v-pills-attendance-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#v-pills-attendance"
-              type="button"
-              role="tab"
-              aria-controls="v-pills-attendance"
-              aria-selected="true"
-            >
-              <div className="navigation-btn">
-                <svg
-                  width="25"
-                  height="25"
-                  viewBox="0 0 25 25"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M20.833 6.94442C20.833 6.39188 21.0525 5.86198 21.4432 5.47128C21.8339 5.08058 22.3638 4.86108 22.9163 4.86108C23.4689 4.86108 23.9988 5.08058 24.3895 5.47128C24.7802 5.86198 24.9997 6.39188 24.9997 6.94442V21.0437L22.9163 24.1687L20.833 21.0437V6.94442ZM22.9163 6.24997C22.7322 6.24997 22.5555 6.32314 22.4253 6.45337C22.2951 6.5836 22.2219 6.76024 22.2219 6.94442V20.6229L22.9163 21.6646L23.6108 20.6229V6.94442C23.6108 6.76024 23.5376 6.5836 23.4074 6.45337C23.2772 6.32314 23.1005 6.24997 22.9163 6.24997Z"
-                    fill="#005173"
-                  />
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M24.3056 9.72222H21.5278V8.33333H24.3056V9.72222ZM2.77778 1.38889C2.40942 1.38889 2.05615 1.53522 1.79569 1.79569C1.53522 2.05615 1.38889 2.40942 1.38889 2.77778V22.2222C1.38889 22.5906 1.53522 22.9438 1.79569 23.2043C2.05615 23.4648 2.40942 23.6111 2.77778 23.6111H16.6667C17.035 23.6111 17.3883 23.4648 17.6488 23.2043C17.9092 22.9438 18.0556 22.5906 18.0556 22.2222V2.77778C18.0556 2.40942 17.9092 2.05615 17.6488 1.79569C17.3883 1.53522 17.035 1.38889 16.6667 1.38889H2.77778ZM0 2.77778C0 2.04107 0.292658 1.33453 0.813592 0.813592C1.33453 0.292658 2.04107 0 2.77778 0H16.6667C17.4034 0 18.1099 0.292658 18.6309 0.813592C19.1518 1.33453 19.4444 2.04107 19.4444 2.77778V22.2222C19.4444 22.9589 19.1518 23.6655 18.6309 24.1864C18.1099 24.7073 17.4034 25 16.6667 25H2.77778C2.04107 25 1.33453 24.7073 0.813592 24.1864C0.292658 23.6655 0 22.9589 0 22.2222V2.77778Z"
-                    fill="#005173"
-                  />
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M9.72251 6.24999C9.72251 6.06581 9.79567 5.88917 9.92591 5.75894C10.0561 5.62871 10.2328 5.55554 10.417 5.55554H15.9725C16.1567 5.55554 16.3333 5.62871 16.4636 5.75894C16.5938 5.88917 16.667 6.06581 16.667 6.24999C16.667 6.43416 16.5938 6.6108 16.4636 6.74103C16.3333 6.87127 16.1567 6.94443 15.9725 6.94443H10.417C10.2328 6.94443 10.0561 6.87127 9.92591 6.74103C9.79567 6.6108 9.72251 6.43416 9.72251 6.24999ZM9.72251 9.02776C9.72251 8.84359 9.79567 8.66695 9.92591 8.53672C10.0561 8.40648 10.2328 8.33332 10.417 8.33332H15.9725C16.1567 8.33332 16.3333 8.40648 16.4636 8.53672C16.5938 8.66695 16.667 8.84359 16.667 9.02776C16.667 9.21194 16.5938 9.38858 16.4636 9.51881C16.3333 9.64904 16.1567 9.72221 15.9725 9.72221H10.417C10.2328 9.72221 10.0561 9.64904 9.92591 9.51881C9.79567 9.38858 9.72251 9.21194 9.72251 9.02776ZM9.72251 15.2778C9.72251 15.0936 9.79567 14.917 9.92591 14.7867C10.0561 14.6565 10.2328 14.5833 10.417 14.5833H15.9725C16.1567 14.5833 16.3333 14.6565 16.4636 14.7867C16.5938 14.917 16.667 15.0936 16.667 15.2778C16.667 15.4619 16.5938 15.6386 16.4636 15.7688C16.3333 15.899 16.1567 15.9722 15.9725 15.9722H10.417C10.2328 15.9722 10.0561 15.899 9.92591 15.7688C9.79567 15.6386 9.72251 15.4619 9.72251 15.2778ZM9.72251 18.0555C9.72251 17.8714 9.79567 17.6947 9.92591 17.5645C10.0561 17.4343 10.2328 17.3611 10.417 17.3611H15.9725C16.1567 17.3611 16.3333 17.4343 16.4636 17.5645C16.5938 17.6947 16.667 17.8714 16.667 18.0555C16.667 18.2397 16.5938 18.4164 16.4636 18.5466C16.3333 18.6768 16.1567 18.75 15.9725 18.75H10.417C10.2328 18.75 10.0561 18.6768 9.92591 18.5466C9.79567 18.4164 9.72251 18.2397 9.72251 18.0555ZM4.16695 15.2778V17.3611H6.25029V15.2778H4.16695ZM3.47251 13.8889H6.94473C7.12891 13.8889 7.30554 13.962 7.43578 14.0923C7.56601 14.2225 7.63918 14.3991 7.63918 14.5833V18.0555C7.63918 18.2397 7.56601 18.4164 7.43578 18.5466C7.30554 18.6768 7.12891 18.75 6.94473 18.75H3.47251C3.28833 18.75 3.1117 18.6768 2.98146 18.5466C2.85123 18.4164 2.77807 18.2397 2.77807 18.0555V14.5833C2.77807 14.3991 2.85123 14.2225 2.98146 14.0923C3.1117 13.962 3.28833 13.8889 3.47251 13.8889ZM8.13015 5.75901C8.26034 5.88924 8.33347 6.06584 8.33347 6.24999C8.33347 6.43413 8.26034 6.61073 8.13015 6.74096L4.8614 10.0097L2.98154 8.12985C2.91521 8.06579 2.86231 7.98916 2.82591 7.90443C2.78952 7.81971 2.77036 7.72858 2.76956 7.63638C2.76876 7.54417 2.78633 7.45272 2.82124 7.36738C2.85616 7.28204 2.90773 7.2045 2.97293 7.1393C3.03813 7.07409 3.11567 7.02253 3.20101 6.98761C3.28636 6.95269 3.3778 6.93512 3.47001 6.93592C3.56222 6.93672 3.65334 6.95588 3.73807 6.99228C3.82279 7.02867 3.89942 7.08158 3.96348 7.1479L4.8614 8.04582L7.1482 5.75901C7.27843 5.62883 7.45503 5.55569 7.63918 5.55569C7.82332 5.55569 7.99992 5.62883 8.13015 5.75901Z"
-                    fill="#005173"
-                  />
-                </svg>
-              </div>
-            </button>
+            {userRole == "admin" || userRole == "faculty" ? (
+              <button
+                className="nav-link  tab-button light-theme"
+                id="v-pills-attendance-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#v-pills-attendance"
+                type="button"
+                role="tab"
+                aria-controls="v-pills-attendance"
+                aria-selected="true"
+              >
+                <div className="navigation-btn">
+                  <svg
+                    width="25"
+                    height="25"
+                    viewBox="0 0 25 25"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clipRule="evenodd"
+                      d="M20.833 6.94442C20.833 6.39188 21.0525 5.86198 21.4432 5.47128C21.8339 5.08058 22.3638 4.86108 22.9163 4.86108C23.4689 4.86108 23.9988 5.08058 24.3895 5.47128C24.7802 5.86198 24.9997 6.39188 24.9997 6.94442V21.0437L22.9163 24.1687L20.833 21.0437V6.94442ZM22.9163 6.24997C22.7322 6.24997 22.5555 6.32314 22.4253 6.45337C22.2951 6.5836 22.2219 6.76024 22.2219 6.94442V20.6229L22.9163 21.6646L23.6108 20.6229V6.94442C23.6108 6.76024 23.5376 6.5836 23.4074 6.45337C23.2772 6.32314 23.1005 6.24997 22.9163 6.24997Z"
+                      fill="#005173"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clipRule="evenodd"
+                      d="M24.3056 9.72222H21.5278V8.33333H24.3056V9.72222ZM2.77778 1.38889C2.40942 1.38889 2.05615 1.53522 1.79569 1.79569C1.53522 2.05615 1.38889 2.40942 1.38889 2.77778V22.2222C1.38889 22.5906 1.53522 22.9438 1.79569 23.2043C2.05615 23.4648 2.40942 23.6111 2.77778 23.6111H16.6667C17.035 23.6111 17.3883 23.4648 17.6488 23.2043C17.9092 22.9438 18.0556 22.5906 18.0556 22.2222V2.77778C18.0556 2.40942 17.9092 2.05615 17.6488 1.79569C17.3883 1.53522 17.035 1.38889 16.6667 1.38889H2.77778ZM0 2.77778C0 2.04107 0.292658 1.33453 0.813592 0.813592C1.33453 0.292658 2.04107 0 2.77778 0H16.6667C17.4034 0 18.1099 0.292658 18.6309 0.813592C19.1518 1.33453 19.4444 2.04107 19.4444 2.77778V22.2222C19.4444 22.9589 19.1518 23.6655 18.6309 24.1864C18.1099 24.7073 17.4034 25 16.6667 25H2.77778C2.04107 25 1.33453 24.7073 0.813592 24.1864C0.292658 23.6655 0 22.9589 0 22.2222V2.77778Z"
+                      fill="#005173"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      clipRule="evenodd"
+                      d="M9.72251 6.24999C9.72251 6.06581 9.79567 5.88917 9.92591 5.75894C10.0561 5.62871 10.2328 5.55554 10.417 5.55554H15.9725C16.1567 5.55554 16.3333 5.62871 16.4636 5.75894C16.5938 5.88917 16.667 6.06581 16.667 6.24999C16.667 6.43416 16.5938 6.6108 16.4636 6.74103C16.3333 6.87127 16.1567 6.94443 15.9725 6.94443H10.417C10.2328 6.94443 10.0561 6.87127 9.92591 6.74103C9.79567 6.6108 9.72251 6.43416 9.72251 6.24999ZM9.72251 9.02776C9.72251 8.84359 9.79567 8.66695 9.92591 8.53672C10.0561 8.40648 10.2328 8.33332 10.417 8.33332H15.9725C16.1567 8.33332 16.3333 8.40648 16.4636 8.53672C16.5938 8.66695 16.667 8.84359 16.667 9.02776C16.667 9.21194 16.5938 9.38858 16.4636 9.51881C16.3333 9.64904 16.1567 9.72221 15.9725 9.72221H10.417C10.2328 9.72221 10.0561 9.64904 9.92591 9.51881C9.79567 9.38858 9.72251 9.21194 9.72251 9.02776ZM9.72251 15.2778C9.72251 15.0936 9.79567 14.917 9.92591 14.7867C10.0561 14.6565 10.2328 14.5833 10.417 14.5833H15.9725C16.1567 14.5833 16.3333 14.6565 16.4636 14.7867C16.5938 14.917 16.667 15.0936 16.667 15.2778C16.667 15.4619 16.5938 15.6386 16.4636 15.7688C16.3333 15.899 16.1567 15.9722 15.9725 15.9722H10.417C10.2328 15.9722 10.0561 15.899 9.92591 15.7688C9.79567 15.6386 9.72251 15.4619 9.72251 15.2778ZM9.72251 18.0555C9.72251 17.8714 9.79567 17.6947 9.92591 17.5645C10.0561 17.4343 10.2328 17.3611 10.417 17.3611H15.9725C16.1567 17.3611 16.3333 17.4343 16.4636 17.5645C16.5938 17.6947 16.667 17.8714 16.667 18.0555C16.667 18.2397 16.5938 18.4164 16.4636 18.5466C16.3333 18.6768 16.1567 18.75 15.9725 18.75H10.417C10.2328 18.75 10.0561 18.6768 9.92591 18.5466C9.79567 18.4164 9.72251 18.2397 9.72251 18.0555ZM4.16695 15.2778V17.3611H6.25029V15.2778H4.16695ZM3.47251 13.8889H6.94473C7.12891 13.8889 7.30554 13.962 7.43578 14.0923C7.56601 14.2225 7.63918 14.3991 7.63918 14.5833V18.0555C7.63918 18.2397 7.56601 18.4164 7.43578 18.5466C7.30554 18.6768 7.12891 18.75 6.94473 18.75H3.47251C3.28833 18.75 3.1117 18.6768 2.98146 18.5466C2.85123 18.4164 2.77807 18.2397 2.77807 18.0555V14.5833C2.77807 14.3991 2.85123 14.2225 2.98146 14.0923C3.1117 13.962 3.28833 13.8889 3.47251 13.8889ZM8.13015 5.75901C8.26034 5.88924 8.33347 6.06584 8.33347 6.24999C8.33347 6.43413 8.26034 6.61073 8.13015 6.74096L4.8614 10.0097L2.98154 8.12985C2.91521 8.06579 2.86231 7.98916 2.82591 7.90443C2.78952 7.81971 2.77036 7.72858 2.76956 7.63638C2.76876 7.54417 2.78633 7.45272 2.82124 7.36738C2.85616 7.28204 2.90773 7.2045 2.97293 7.1393C3.03813 7.07409 3.11567 7.02253 3.20101 6.98761C3.28636 6.95269 3.3778 6.93512 3.47001 6.93592C3.56222 6.93672 3.65334 6.95588 3.73807 6.99228C3.82279 7.02867 3.89942 7.08158 3.96348 7.1479L4.8614 8.04582L7.1482 5.75901C7.27843 5.62883 7.45503 5.55569 7.63918 5.55569C7.82332 5.55569 7.99992 5.62883 8.13015 5.75901Z"
+                      fill="#005173"
+                    />
+                  </svg>
+                </div>
+              </button>
+            ) : (
+              ""
+            )}
             {/* setting button */}
             <button
               className="nav-link  tab-button light-theme"
@@ -237,7 +321,7 @@ const Dashboard = () => {
               aria-labelledby="v-pills-analysis-tab"
               tabIndex={0}
             >
-              Analysis
+              <Analysis />
             </div>
             <div
               className="tab-pane fade "
@@ -246,7 +330,7 @@ const Dashboard = () => {
               aria-labelledby="v-pills-db-tab"
               tabIndex={0}
             >
-              database
+              <Database />
             </div>
             <div
               className="tab-pane fade "
@@ -255,7 +339,7 @@ const Dashboard = () => {
               aria-labelledby="v-pills-blackboard-tab"
               tabIndex={0}
             >
-              blackboard
+              <Blackboard />
             </div>
             <div
               className="tab-pane fade "
@@ -264,7 +348,7 @@ const Dashboard = () => {
               aria-labelledby="v-pills-material-tab"
               tabIndex={0}
             >
-              Material
+              <Material />
             </div>
             <div
               className="tab-pane fade "
@@ -273,7 +357,7 @@ const Dashboard = () => {
               aria-labelledby="v-pills-attendance-tab"
               tabIndex={0}
             >
-              Attendance
+              <Attendance />
             </div>
             <div
               className="tab-pane fade "
@@ -282,90 +366,7 @@ const Dashboard = () => {
               aria-labelledby="v-pills-setting-tab"
               tabIndex={0}
             >
-              <div className="setting-content d-flex">
-                <div className="left-setting-content light-theme">
-                  <div className="left-top-setting-area light-theme">
-                    <div className="setting-profile-image">
-                      <img src={profileImage} alt="" />
-                    </div>
-                    <div className="setting-profile-name ">Rahul P. Gohel</div>
-                    <div className="edit-icon">
-                      <svg
-                        width="19"
-                        height="19"
-                        viewBox="0 0 19 19"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13.474 3.40783L15.592 5.52483M14.836 1.54283L9.109 7.26983C8.81309 7.56533 8.61128 7.94181 8.529 8.35183L8 10.9998L10.648 10.4698C11.058 10.3878 11.434 10.1868 11.73 9.89083L17.457 4.16383C17.6291 3.99173 17.7656 3.78742 17.8588 3.56256C17.9519 3.33771 17.9998 3.09671 17.9998 2.85333C17.9998 2.60994 17.9519 2.36895 17.8588 2.14409C17.7656 1.91923 17.6291 1.71492 17.457 1.54283C17.2849 1.37073 17.0806 1.23421 16.8557 1.14108C16.6309 1.04794 16.3899 1 16.1465 1C15.9031 1 15.6621 1.04794 15.4373 1.14108C15.2124 1.23421 15.0081 1.37073 14.836 1.54283V1.54283Z"
-                          stroke="#005173"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M16 12.9998V15.9998C16 16.5302 15.7893 17.039 15.4142 17.414C15.0391 17.7891 14.5304 17.9998 14 17.9998H3C2.46957 17.9998 1.96086 17.7891 1.58579 17.414C1.21071 17.039 1 16.5302 1 15.9998V4.99982C1 4.46938 1.21071 3.96068 1.58579 3.5856C1.96086 3.21053 2.46957 2.99982 3 2.99982H6"
-                          stroke="#005173"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="left-bottom-setting-area">
-                    <div className="setting-basic-detail-head light-theme">
-                      Basic Detail
-                    </div>
-                    <div className="users-basic-details">
-                      <ul>
-                        <li> <b>Date:</b> 17/04/2003 </li>
-                        <li> <b>Phone no:</b> 9978457869 </li>
-                        <li> <b>Email:</b> rahul123@gmail.com </li>
-                        <li> <b>Address:</b> B/21 krishna park, nr gokul,nikol, ahmedabad.</li>
-                      </ul>
-                    </div>
-                    <div className="setting-basic-detail-head light-theme">
-                      Educational Joruney
-                    </div>
-                    <div className="users-basic-details educational-journey-details">
-                      <ul>
-                        <li> <b>SSC Marks:</b> 65% </li>
-                        <li> <b>HSC Marks:</b> 60% </li>
-                        <li> <b>Graduation</b> BSCIT </li>
-                       
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                <div className="right-setting-content">
-                  <div className="sun-moon-illustration light-theme"></div>
-                  <div className="right-head-setting light-theme">
-                    Modify your software here
-                  </div>
-                  <div className="right-setting-contents">
-                    <div className="dark-mode-setting light-theme d-flex justify-content-between align-items-center">
-                     <div className="dark-mode-text">
-                     Dark Mode
-                     </div>
-                      <div className="dark-mode-label">
-                        <div className="change-theme-container ">
-                          <input
-                          className="d-none"
-                            type="checkbox"
-                            id="changeTheme"
-                            onInput={getTheme}
-                          />
-                          <label htmlFor="changeTheme" className="custom-radio light-theme">
-                            <div className="round"></div>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Setting />
             </div>
           </div>
         </div>
